@@ -1,0 +1,72 @@
+# File: domain-monitor/docker-compose.yml
+services:
+  domain-monitor:
+    build: .
+    container_name: domain-monitor
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Application settings
+      - APP_NAME=domain-monitor
+      - APP_VERSION=0.1.0
+      - LOG_LEVEL=INFO
+      
+      # Sentry configuration
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT:-production}
+      - SENTRY_TRACES_SAMPLE_RATE=0.1
+      
+      # API callback configuration
+      - API_CALLBACK_URL=${API_CALLBACK_URL}
+      - API_AVAILABLE_CALLBACK_URL=${API_AVAILABLE_CALLBACK_URL}
+      - API_AUTH_TOKEN=${API_AUTH_TOKEN}
+      - API_TIMEOUT=30
+      - API_MAX_RETRIES=3
+      
+      # Domain API configuration 
+      - DOMAIN_API_URL=${DOMAIN_API_URL}
+      - DOMAIN_API_REFRESH_INTERVAL=${DOMAIN_API_REFRESH_INTERVAL:-300}
+      
+      # Checking intervals (in seconds)
+      - LAYER1_CHECK_INTERVAL=${LAYER1_CHECK_INTERVAL:-300}  # 5 minutes
+      - LAYER2_CHECK_INTERVAL=${LAYER2_CHECK_INTERVAL:-1800}  # 30 minutes
+      - LAYER3_CHECK_INTERVAL=${LAYER3_CHECK_INTERVAL:-10800}  # 3 hours
+      
+      # Rate limiting configuration
+      - DNS_CHECKS_PER_MINUTE=${DNS_CHECKS_PER_MINUTE:-100}
+      - HTTP_CHECKS_PER_MINUTE=${HTTP_CHECKS_PER_MINUTE:-60}
+      - REGISTRAR_CHECKS_PER_MINUTE=${REGISTRAR_CHECKS_PER_MINUTE:-30}
+      - RDAP_CHECKS_PER_MINUTE=${RDAP_CHECKS_PER_MINUTE:-20}
+      - WHOIS_CHECKS_PER_MINUTE=${WHOIS_CHECKS_PER_MINUTE:-10}
+      
+      # Availability scoring configuration
+      - AVAILABILITY_THRESHOLD=${AVAILABILITY_THRESHOLD:-0.75}
+      - DNS_WEIGHT=${DNS_WEIGHT:-0.3}
+      - HTTP_WEIGHT=${HTTP_WEIGHT:-0.2}
+      - REGISTRAR_WEIGHT=${REGISTRAR_WEIGHT:-0.2}
+      - RDAP_WEIGHT=${RDAP_WEIGHT:-0.15}
+      - WHOIS_WEIGHT=${WHOIS_WEIGHT:-0.15}
+      
+      # Instance identification for horizontal scaling
+      - INSTANCE_ID=${INSTANCE_ID:-default}
+      - ENABLE_DISTRIBUTED_LOCKING=${ENABLE_DISTRIBUTED_LOCKING:-false}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    volumes:
+      - ./logs:/app/logs
+      - ./state:/app/state
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s

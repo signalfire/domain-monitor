@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "domain-monitor"
+version = "0.1.0"
+description = "A production-grade domain availability monitoring system"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+httpx = "^0.26.0"
+apscheduler = "^3.10.4"
+pydantic = "^2.6.1"
+pydantic-settings = "^2.2.1"
+dnspython = "^2.5.0"
+python-whois = "^0.8.0"
+rdap = "^1.5.1"
+sentry-sdk = "^1.42.0"
+tenacity = "^8.2.3"
+fastapi = "^0.110.0"
+uvicorn = "^0.27.1"
+gunicorn = "^22.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.5"
+pytest-cov = "^4.1.0"
+black = "^24.1.1"
+isort = "^5.13.2"
+ruff = "^0.1.15"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+select = ["E", "F", "B", "I", "N", "UP", "ANN", "S", "A"]
+ignore = ["ANN101", "ANN102", "S101"]
+
+[tool.mypy]
+python_version = "3.12"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_ignores = true
